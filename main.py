@@ -1,28 +1,41 @@
 import paho.mqtt.client as mqtt
 
-MQTT_BROKER = 'mqtt.my-broker.org'
-MQTT_PORT = 1883
-MQTT_USER = ''
-MQTT_PASSWORD = ''
-MQTT_TOPIC = 'wateringsystem/#'
+from data_service import DataService
+from config_service import ConfigService
 
 
 def on_connect(client, userdata, flags_dict, rc):
-    print('connected with result code ' + str(rc))
+    if rc != 0:
+        print('connection error: ' + str(rc))
+        return
+
+    print('connected')
+
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(MQTT_TOPIC)
+    client.subscribe(mqtt_config['topic'])
 
 
 def on_message(client, userdata, msg):
     print(msg.topic + ' ' + str(msg.payload))
 
+    if msg.topic == 'wateringsystem/sensors/dht11/temperature':
+        data_service.save_temperature(msg.payload)
+    elif msg.topic == 'wateringsystem/sensors/dht11/humidity':
+        pass
+    elif msg.topic == 'wateringsystem/sensors/soil-moisture':
+        pass
+
+config_service = ConfigService()
+mqtt_config = config_service.get_section('mqtt')
+mysql_config = config_service.get_section('mysql')
+data_service = DataService(mysql_config)
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+client.username_pw_set(mqtt_config['user'], mqtt_config['password'])
 
-client.connect(MQTT_BROKER, MQTT_PORT)
+client.connect(mqtt_config['host'], mqtt_config['port'])
 
 client.loop_forever()
