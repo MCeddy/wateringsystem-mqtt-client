@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import argparse
 
 from data_service import DataService
 from config_service import ConfigService
@@ -26,7 +27,12 @@ def on_message(client, userdata, msg):
     elif msg.topic == 'wateringsystem/sensors/soil-moisture':
         pass
 
-config_service = ConfigService()
+# setup commandline argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument('--env')
+args = parser.parse_args()
+
+config_service = ConfigService(args.env)
 mqtt_config = config_service.get_section('mqtt')
 mysql_config = config_service.get_section('mysql')
 data_service = DataService(mysql_config)
