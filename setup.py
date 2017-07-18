@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='wateringsystem-mqtt-client-gh',
@@ -8,5 +8,6 @@ setup(
     license='MIT',
     author='René Schimmelpfennig',
     author_email='mail@reneschimmelpfennig.de',
-    description='saves sensor values from MQTT broker.'
+    description='saves sensor values from MQTT broker.',
+    install_requires=['paho–mqtt >= 1.3', 'mysqlclient >= 1.3.10', 'PyYAML >= 3.12']
 )
