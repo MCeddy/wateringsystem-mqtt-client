@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import argparse
+import json
 
 from data_service import DataService
 from config_service import ConfigService
@@ -20,12 +21,13 @@ def on_connect(client, userdata, flags_dict, rc):
 def on_message(client, userdata, msg):
     print(msg.topic + ' ' + str(msg.payload))
 
-    if msg.topic == 'wateringsystem/sensors/dht11/temperature':
-        data_service.save_temperature(msg.payload)
-    elif msg.topic == 'wateringsystem/sensors/dht11/humidity':
-        pass
-    elif msg.topic == 'wateringsystem/sensors/soil-moisture':
-        pass
+    sensor_values = json.loads(msg.payload.decode('utf-8'))
+
+    temperature = sensor_values['Temperature']
+    humidity = sensor_values['Humidity']
+    soil_moisture = sensor_values['SoilMoisture']
+
+    data_service.save_sensor_values(temperature, humidity, soil_moisture)
 
 # setup commandline argument parser
 parser = argparse.ArgumentParser()
