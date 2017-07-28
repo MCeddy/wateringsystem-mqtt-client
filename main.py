@@ -1,9 +1,14 @@
-import paho.mqtt.client as mqtt
 import argparse
 import json
+import logging
+import logging.config
+import os
+import yaml
 
-from data_service import DataService
+import paho.mqtt.client as mqtt
+
 from config_service import ConfigService
+from data_service import DataService
 
 
 def load_args():
@@ -12,6 +17,18 @@ def load_args():
     parser.add_argument('--env')
 
     return parser.parse_args()
+
+
+def setup_logging(default_level=logging.INFO):
+    path = os.path.join(os.getcwd(), 'config', 'logging.yaml')
+
+    if os.path.exists(path):
+        # load from config
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
 
 
 def create_mqtt_client(config):
@@ -26,10 +43,10 @@ def create_mqtt_client(config):
 
 def on_connect(client, userdata, flags_dict, rc):
     if rc != 0:
-        print('MQTT connection error: ' + str(rc))
+        logger.error('MQTT connection error: ' + str(rc))
         return
 
-    print('MQTT connected')
+    logger.info('MQTT connected')
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
@@ -37,8 +54,9 @@ def on_connect(client, userdata, flags_dict, rc):
 
 
 def on_message(client, userdata, msg):
-    print(msg.topic + ' ' + str(msg.payload))
+    logger.info('receive message "%s": %s', msg.topic, str(msg.payload))
 
+    # transform payload to JSON
     sensor_values = json.loads(msg.payload.decode('utf-8'))
 
     temperature = sensor_values['Temperature']
@@ -47,13 +65,21 @@ def on_message(client, userdata, msg):
 
     data_service.save_sensor_values(temperature, humidity, soil_moisture)
 
+
 args = load_args()
+setup_logging()
+logger = logging.getLogger(__name__)
 
-config_service = ConfigService(args.env)
-mqtt_config = config_service.get_section('mqtt')
-mysql_config = config_service.get_section('mysql')
+logger.info('starting MQTT client')
 
-data_service = DataService(mysql_config)
+try:
+    config_service = ConfigService(args.env)
+    mqtt_config = config_service.get_section('mqtt')
+    mysql_config = config_service.get_section('mysql')
 
-mqtt_client = create_mqtt_client(mqtt_config)
-mqtt_client.loop_forever()
+    data_service = DataService(mysql_config)
+
+    mqtt_client = create_mqtt_client(mqtt_config)
+    mqtt_client.loop_forever()
+except Exception as error:
+    logger.error('main error', exc_info=True)

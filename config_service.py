@@ -1,29 +1,33 @@
-import os.path
+import os
 import yaml
+import logging
 
 
 class ConfigService:
     def __init__(self, env):
-        file_name = ConfigService.__get_file_name(env)
+        self.__logger = logging.getLogger(__name__)
+        self.__load_from_file(env)
 
-        with open(file_name, 'r') as file:
-            self.cfg = yaml.safe_load(file)
+    def __load_from_file(self, env):
+        file_name = self.__get_file_name(env)
+        config_path = os.path.join(os.getcwd(), 'config', file_name)
 
-    def get_section(self, section_name):
-        if section_name not in self.cfg:
-            return
+        with open(config_path, 'r') as file:
+            self.__cfg = yaml.safe_load(file)
 
-        return self.cfg[section_name]
-
-    @staticmethod
-    def __get_file_name(env):
-        default_file_name = 'config.yml'
-
+    def __get_file_name(self, env):
         if env is not None:
             env_file_name = 'config_{}.yml'.format(env)
+            
             if os.path.isfile(env_file_name):  # exists
-                print('load environment configuration for "{}"'.format(env))
+                self.__logger.debug('load environment configuration for "{}"'.format(env))
                 return env_file_name
 
-        print('load default configuration')
-        return default_file_name
+        self.__logger.debug('load default configuration')
+        return 'config.yml'
+
+    def get_section(self, section_name):
+        if section_name not in self.__cfg:
+            return
+
+        return self.__cfg[section_name]
