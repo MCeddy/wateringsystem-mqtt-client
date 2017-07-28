@@ -19,10 +19,22 @@ class DataService:
             self.__log.error('couldn\'t connect to MySQL database', exc_info=True)
 
     def save_sensor_values(self, temperature, humidity, soil_moisture):
-        pass
+        sql_command = 'INSERT INTO sensors (temperature, humidity, soil_moisture) VALUES ({}, {}, {})'\
+            .format(temperature, humidity, soil_moisture)
+
+        try:
+            cursor = self.__db.cursor()
+            result = cursor.execute(sql_command)
+            self.__db.commit()
+
+            if result == 1:
+                self.__log.debug('saving successful')
+            else:
+                self.__log.error('saving error')
+        except Exception as error:
+            self.__log.error('error on saving data', exc_info=True)
+            self.__db.rollback()
 
     def __del__(self):
-        try:
+        if self.__db.open == 1:
             self.__db.close()
-        except:
-            pass
