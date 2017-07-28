@@ -20,7 +20,7 @@ def load_args():
 
 
 def setup_logging(default_level=logging.INFO):
-    path = os.path.join(os.getcwd(), 'config', 'logging.yaml')
+    path = os.path.join(os.getcwd(), 'config', 'logging.yml')
 
     if os.path.exists(path):
         # load from config
