@@ -9,6 +9,7 @@ import paho.mqtt.client as mqtt
 
 from config_service import ConfigService
 from data_service import DataService
+from watering_service import WateringService
 
 
 def load_args():
@@ -41,6 +42,11 @@ def create_mqtt_client(config):
     return client
 
 
+def watering(sensors_id, milliseconds):
+    mqtt_client.publish(watering_config['topic'], milliseconds)
+    data_service.save_watering(sensors_id, milliseconds)
+
+
 def on_connect(client, userdata, flags_dict, rc):
     if rc != 0:
         logger.error('MQTT connection error: ' + str(rc))
@@ -63,7 +69,14 @@ def on_message(client, userdata, msg):
     humidity = sensor_values['Humidity']
     soil_moisture = sensor_values['SoilMoisture']
 
-    data_service.save_sensor_values(temperature, humidity, soil_moisture)
+    sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
+
+    if sensors_id is not None:
+        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+
+        if watering_milliseconds > 200:
+            watering(sensors_id, watering_milliseconds)
+
 
 
 args = load_args()
@@ -76,8 +89,10 @@ try:
     config_service = ConfigService(args.env)
     mqtt_config = config_service.get_section('mqtt')
     mysql_config = config_service.get_section('mysql')
+    watering_config = config_service.get_section('watering')
 
     data_service = DataService(mysql_config)
+    watering_service = WateringService(watering_config)
 
     mqtt_client = create_mqtt_client(mqtt_config)
     mqtt_client.loop_forever()

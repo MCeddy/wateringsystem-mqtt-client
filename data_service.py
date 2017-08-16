@@ -30,10 +30,29 @@ class DataService:
             self.__db.commit()
 
             if result == 1:
-                self.__log.debug('saving successful')
+                self.__log.debug('saving sensor-values: successful')
                 return cursor.lastrowid
             else:
-                self.__log.error('saving error')
+                self.__log.error('saving sensor-values: error')
+        except _mysql_exceptions.DatabaseError:
+            self.__log.error('error on saving data', exc_info=True)
+            self.__db.rollback()
+
+    def save_watering(self, sensors_id, watering_milliseconds):
+        try:
+            cursor = self.__db.cursor()
+
+            sql_command = 'INSERT INTO watering (sensors_id, milliseconds) VALUES ({}, {})' \
+                .format(sensors_id, watering_milliseconds)
+            result = cursor.execute(sql_command)
+            self.__db.commit()
+
+            if result == 1:
+                self.__log.debug('saving watering: successful')
+                return cursor.lastrowid
+            else:
+                self.__log.error('saving watering: error')
+
         except _mysql_exceptions.DatabaseError:
             self.__log.error('error on saving data', exc_info=True)
             self.__db.rollback()
