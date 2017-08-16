@@ -83,13 +83,13 @@ def on_connect(client, userdata, flags_dict, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(mqtt_config['topic'])
+    client.subscribe(mqtt_config['topics']['generic'])
 
 
 def on_message(client, userdata, msg):
     logger.debug('receive message "%s": %s', msg.topic, str(msg.payload))
 
-    if msg.topic == mqtt_config['topic']:  # sensor values
+    if msg.topic == mqtt_config['topics']['sensors']:  # sensor values
         handle_receive_sensor_values(msg.payload)
     if msg.topic == watering_config['topic']:  # watering
         handle_watering(msg.payload)

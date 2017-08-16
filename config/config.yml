@@ -3,7 +3,9 @@ mqtt:
   port: 1883
   user: 'mqtt'
   password: '123456789'
-  topic: 'wateringsystem/sensors'
+  topics:
+    generic: 'wateringsystem/#'
+    sensors: 'wateringsystem/sensors'
 mysql:
   host: 'localhost'
   database: 'wateringsystem'
