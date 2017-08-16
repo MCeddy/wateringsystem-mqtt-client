@@ -36,7 +36,13 @@ def create_mqtt_client(config):
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-    client.username_pw_set(config['user'], config['password'])
+
+    user = config['user']
+
+    if user is not None:
+        # use authentication
+        client.username_pw_set(user, config['password'])
+
     client.connect(config['host'], config['port'])
 
     return client
