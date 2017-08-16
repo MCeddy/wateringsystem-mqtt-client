@@ -38,7 +38,6 @@ def create_mqtt_client(config):
     client.on_message = on_message
 
     user = config['user']
-
     if user is not None:
         # use authentication
         client.username_pw_set(user, config['password'])
@@ -71,9 +70,9 @@ def on_message(client, userdata, msg):
     # transform payload to JSON
     sensor_values = json.loads(msg.payload.decode('utf-8'))
 
-    temperature = sensor_values['Temperature']
-    humidity = sensor_values['Humidity']
-    soil_moisture = sensor_values['SoilMoisture']
+    temperature = int(sensor_values['Temperature'])
+    humidity = int(sensor_values['Humidity'])
+    soil_moisture = int(sensor_values['SoilMoisture'])
 
     sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
 
