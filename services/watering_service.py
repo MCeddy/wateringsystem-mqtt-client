@@ -3,9 +3,9 @@ class WateringService:
         self.__config = watering_config
 
     def calculate_milliseconds(self, soil_moisture):
-        if soil_moisture > self.__config['minSoilMoisture']:
+        if soil_moisture > int(self.__config['minSoilMoisture']):
             # no watering
             return 0
 
         # watering
-        return self.__config['wateringMilliseconds']
+        return int(self.__config['wateringMilliseconds'])
