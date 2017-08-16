@@ -34,7 +34,7 @@ class DataService:
                 self.__log.debug('saving successful')
             else:
                 self.__log.error('saving error')
-        except Exception as error:
+        except _mysql_exceptions.DatabaseError:
             self.__log.error('error on saving data', exc_info=True)
             self.__db.rollback()
 
