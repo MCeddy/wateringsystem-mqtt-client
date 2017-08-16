@@ -38,12 +38,12 @@ class DataService:
             self.__log.error('error on saving data', exc_info=True)
             self.__db.rollback()
 
-    def save_watering(self, sensors_id, watering_milliseconds):
+    def save_watering(self, watering_milliseconds):
         try:
             cursor = self.__db.cursor()
 
-            sql_command = 'INSERT INTO watering (sensors_id, milliseconds) VALUES ({}, {})' \
-                .format(sensors_id, watering_milliseconds)
+            sql_command = 'INSERT INTO watering (milliseconds) VALUES ({})' \
+                .format(watering_milliseconds)
             result = cursor.execute(sql_command)
             self.__db.commit()
 

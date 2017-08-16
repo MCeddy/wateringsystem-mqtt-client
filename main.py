@@ -34,6 +34,7 @@ def setup_logging(default_level=logging.INFO):
 
 def create_mqtt_client(config):
     client = mqtt.Client()
+
     client.on_connect = on_connect
     client.on_message = on_message
 
@@ -47,9 +48,30 @@ def create_mqtt_client(config):
     return client
 
 
-def watering(sensors_id, milliseconds):
+def handle_receive_sensor_values(payload):
+    # transform payload to JSON
+    sensor_values = json.loads(payload.decode('utf-8'))
+
+    temperature = int(sensor_values['Temperature'])
+    humidity = int(sensor_values['Humidity'])
+    soil_moisture = int(sensor_values['SoilMoisture'])
+
+    sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
+
+    if sensors_id is not None:
+        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+
+        if watering_milliseconds > 200:
+            watering(watering_milliseconds)
+
+
+def handle_watering(payload):
+    watering_milliseconds = int(payload)
+    data_service.save_watering(watering_milliseconds)
+
+
+def watering(milliseconds):
     mqtt_client.publish(watering_config['topic'], milliseconds)
-    data_service.save_watering(sensors_id, milliseconds)
 
 
 def on_connect(client, userdata, flags_dict, rc):
@@ -65,22 +87,12 @@ def on_connect(client, userdata, flags_dict, rc):
 
 
 def on_message(client, userdata, msg):
-    logger.info('receive message "%s": %s', msg.topic, str(msg.payload))
+    logger.debug('receive message "%s": %s', msg.topic, str(msg.payload))
 
-    # transform payload to JSON
-    sensor_values = json.loads(msg.payload.decode('utf-8'))
-
-    temperature = int(sensor_values['Temperature'])
-    humidity = int(sensor_values['Humidity'])
-    soil_moisture = int(sensor_values['SoilMoisture'])
-
-    sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
-
-    if sensors_id is not None:
-        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
-
-        if watering_milliseconds > 200:
-            watering(sensors_id, watering_milliseconds)
+    if msg.topic == mqtt_config['topic']:  # sensor values
+        handle_receive_sensor_values(msg.payload)
+    if msg.topic == watering_config['topic']:  # watering
+        handle_watering(msg.payload)
 
 
 args = load_args()

@@ -40,8 +40,7 @@ CREATE TABLE `sensors` (
 CREATE TABLE `watering` (
   `id` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `milliseconds` int(11) NOT NULL,
-  `sensors_id` int(11) DEFAULT NULL
+  `milliseconds` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -58,8 +57,7 @@ ALTER TABLE `sensors`
 -- Indexes for table `watering`
 --
 ALTER TABLE `watering`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `IX_Watering_SensorsId` (`sensors_id`);
+  ADD PRIMARY KEY (`id`)
 
 --
 -- AUTO_INCREMENT for dumped tables
