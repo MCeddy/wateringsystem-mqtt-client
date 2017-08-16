@@ -27,11 +27,11 @@ class DataService:
             sql_command = 'INSERT INTO sensors (temperature, humidity, soil_moisture) VALUES ({}, {}, {})' \
                 .format(temperature, humidity, soil_moisture)
             result = cursor.execute(sql_command)
-
             self.__db.commit()
 
             if result == 1:
                 self.__log.debug('saving successful')
+                return cursor.lastrowid
             else:
                 self.__log.error('saving error')
         except _mysql_exceptions.DatabaseError:
