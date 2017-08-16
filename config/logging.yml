@@ -30,12 +30,6 @@ handlers:
         backupCount: 20
         encoding: utf8
 
-loggers:
-    myModule:
-        level: ERROR
-        handlers: [console]
-        propagate: no
-
 root:
     level: INFO
     handlers: [console, info_file_handler, error_file_handler]
