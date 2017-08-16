@@ -1,5 +1,7 @@
-import MySQLdb, _mysql_exceptions
 import logging
+
+import MySQLdb
+import _mysql_exceptions
 
 
 class DataService:
