@@ -3,13 +3,13 @@ import json
 import logging
 import logging.config
 import os
-import yaml
 
 import paho.mqtt.client as mqtt
+import yaml
 
-from config_service import ConfigService
-from data_service import DataService
-from watering_service import WateringService
+from services.data_service import DataService
+from services.watering_service import WateringService
+from services.config_service import ConfigService
 
 
 def load_args():
@@ -76,7 +76,6 @@ def on_message(client, userdata, msg):
 
         if watering_milliseconds > 200:
             watering(sensors_id, watering_milliseconds)
-
 
 
 args = load_args()
