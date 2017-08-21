@@ -52,22 +52,28 @@ def handle_receive_sensor_values(payload):
     # transform payload to JSON
     sensor_values = json.loads(payload.decode('utf-8'))
 
-    temperature = int(sensor_values['Temperature'])
-    humidity = int(sensor_values['Humidity'])
-    soil_moisture = int(sensor_values['SoilMoisture'])
+    try:
+        temperature = int(sensor_values['Temperature'])
+        humidity = int(sensor_values['Humidity'])
+        soil_moisture = int(sensor_values['SoilMoisture'])
 
-    sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
+        sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
 
-    if sensors_id is not None:
-        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+        if sensors_id is not None:
+            watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
 
-        if watering_milliseconds > 200:
-            watering(watering_milliseconds)
+            if watering_milliseconds > 200:
+                watering(watering_milliseconds)
+    except ValueError:
+        logger.error('convert sensor-values error', exc_info=True)
 
 
 def handle_watering(payload):
-    watering_milliseconds = int(payload)
-    data_service.save_watering(watering_milliseconds)
+    try:
+        watering_milliseconds = int(payload)
+        data_service.save_watering(watering_milliseconds)
+    except ValueError:
+        logger.error('convert watering-milliseconds error', exc_info=True)
 
 
 def watering(milliseconds):
