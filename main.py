@@ -49,10 +49,13 @@ def create_mqtt_client(config):
 
 
 def handle_receive_sensor_values(payload):
-    # transform payload to JSON
-    sensor_values = json.loads(payload.decode('utf-8'))
+    if payload is None:
+        return
 
     try:
+        # transform payload to JSON
+        sensor_values = json.loads(payload.decode('utf-8'))
+
         temperature = int(sensor_values['Temperature'])
         humidity = int(sensor_values['Humidity'])
         soil_moisture = int(sensor_values['SoilMoisture'])
@@ -64,6 +67,8 @@ def handle_receive_sensor_values(payload):
 
             if watering_milliseconds > 200:
                 watering(watering_milliseconds)
+    except AttributeError:
+        logger.error('read sensors JSON error', exc_info=True)
     except ValueError:
         logger.error('convert sensor-values error', exc_info=True)
 
