@@ -12,6 +12,6 @@ mysql:
   user: 'wateringsystem'
   password: '123456789'
 watering:
-    minSoilMoisture: 800
-    wateringMilliseconds: 1200
+    minSoilMoisture: 900
+    wateringMilliseconds: 15000
     topic: 'wateringsystem/watering'
