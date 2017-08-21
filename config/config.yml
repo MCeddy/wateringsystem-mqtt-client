@@ -6,12 +6,12 @@ mqtt:
   topics:
     generic: 'wateringsystem/#'
     sensors: 'wateringsystem/sensors'
+    watering: 'wateringsystem/watering'
 mysql:
   host: 'localhost'
   database: 'wateringsystem'
   user: 'wateringsystem'
   password: '123456789'
 watering:
-    minSoilMoisture: 900
-    wateringMilliseconds: 15000
-    topic: 'wateringsystem/watering'
+  minSoilMoisture: 900
+  wateringMilliseconds: 15000

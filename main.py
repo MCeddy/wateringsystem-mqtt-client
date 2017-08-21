@@ -77,7 +77,7 @@ def handle_watering(payload):
 
 
 def watering(milliseconds):
-    mqtt_client.publish(watering_config['topic'], milliseconds)
+    mqtt_client.publish(mqtt_config['topics']['watering'], milliseconds)
 
 
 def on_connect(client, userdata, flags_dict, rc):
@@ -97,7 +97,7 @@ def on_message(client, userdata, msg):
 
     if msg.topic == mqtt_config['topics']['sensors']:  # sensor values
         handle_receive_sensor_values(msg.payload)
-    if msg.topic == watering_config['topic']:  # watering
+    if msg.topic == mqtt_config['topic']['watering']:  # watering
         handle_watering(msg.payload)
 
 
