@@ -97,7 +97,7 @@ def on_message(client, userdata, msg):
 
     if msg.topic == mqtt_config['topics']['sensors']:  # sensor values
         handle_receive_sensor_values(msg.payload)
-    if msg.topic == mqtt_config['topic']['watering']:  # watering
+    if msg.topic == mqtt_config['topics']['watering']:  # watering
         handle_watering(msg.payload)
 
 
