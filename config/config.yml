@@ -6,7 +6,7 @@ mqtt:
   topics:
     generic: 'wateringsystem/#'
     sensors: 'wateringsystem/sensors'
-    watering: 'wateringsystem/watering'
+    watering: 'wateringsystem/actions/watering'
 mysql:
   host: 'localhost'
   database: 'wateringsystem'

@@ -62,11 +62,13 @@ def handle_receive_sensor_values(payload):
 
         sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
 
-        if sensors_id is not None:
-            watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+        if sensors_id is None:
+            return
 
-            if watering_milliseconds > 200:
-                watering(watering_milliseconds)
+        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+
+        if watering_milliseconds > 200:
+            watering(watering_milliseconds)
     except AttributeError:
         logger.error('read sensors JSON error', exc_info=True)
     except ValueError:
