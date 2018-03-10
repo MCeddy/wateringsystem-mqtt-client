@@ -1,0 +1,12 @@
+[Unit]
+Description=MQTT client for wateringsystem
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/var/wateringsystem/mqtt-client
+ExecStart=/usr/bin/python3 /var/wateringsystem/mqtt-client/main.py --env prod
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
