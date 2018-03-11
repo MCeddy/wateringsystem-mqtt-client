@@ -12,22 +12,32 @@ class DataService:
 
     def __connect(self):
         try:
-            self.__db = MySQLdb.connect(host=self.__config['host'],
-                                        db=self.__config['database'],
-                                        user=self.__config['user'],
-                                        passwd=self.__config['password'])
+            self.__conn = MySQLdb.connect(host=self.__config['host'],
+                                          db=self.__config['database'],
+                                          user=self.__config['user'],
+                                          passwd=self.__config['password'])
             self.__log.info('MySQL connected')
         except _mysql_exceptions.OperationalError:
             self.__log.error('couldn\'t connect to MySQL database', exc_info=True)
 
+    def __execute(self, sql):
+        try:
+            cursor = self.__conn.cursor()
+            result = cursor.execute(sql)
+            return result, cursor
+        except (AttributeError, MySQLdb.OperationalError):
+            self.__connect()  # reconnect
+
+            cursor = self.__conn.cursor
+            result = cursor.execute(sql)
+            return result, cursor
+
     def save_sensor_values(self, temperature, humidity, soil_moisture):
         try:
-            cursor = self.__db.cursor()
-
             sql_command = 'INSERT INTO sensors (temperature, humidity, soil_moisture) VALUES ({}, {}, {})' \
                 .format(temperature, humidity, soil_moisture)
-            result = cursor.execute(sql_command)
-            self.__db.commit()
+            result, cursor = self.__execute(sql_command)
+            self.__conn.commit()
 
             if result == 1:
                 self.__log.debug('saving sensor-values: successful')
@@ -36,16 +46,14 @@ class DataService:
                 self.__log.error('saving sensor-values: error')
         except _mysql_exceptions.DatabaseError:
             self.__log.error('error on saving data', exc_info=True)
-            self.__db.rollback()
+            self.__conn.rollback()
 
     def save_watering(self, watering_milliseconds):
         try:
-            cursor = self.__db.cursor()
-
             sql_command = 'INSERT INTO watering (milliseconds) VALUES ({})' \
                 .format(watering_milliseconds)
-            result = cursor.execute(sql_command)
-            self.__db.commit()
+            result, cursor = self.__execute(sql_command)
+            self.__conn.commit()
 
             if result == 1:
                 self.__log.debug('saving watering: successful')
@@ -55,8 +63,8 @@ class DataService:
 
         except _mysql_exceptions.DatabaseError:
             self.__log.error('error on saving data', exc_info=True)
-            self.__db.rollback()
+            self.__conn.rollback()
 
     def __del__(self):
-        if self.__db.open == 1:
-            self.__db.close()
+        if self.__conn.open == 1:
+            self.__conn.close()
