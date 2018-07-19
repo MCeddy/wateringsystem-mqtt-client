@@ -24,10 +24,11 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `sensors` (
   `id` int(11) NOT NULL,
-  `temperature` int(11) DEFAULT NULL,
-  `humidity` int(11) DEFAULT NULL,
-  `soil_moisture` int(11) DEFAULT NULL,
-  `created` datetime DEFAULT CURRENT_TIMESTAMP,
+  `temperature` FLOAT(4,2) DEFAULT NULL,
+  `humidity` FLOAT(4,2) DEFAULT NULL,
+  `pressure` FLOAT(6,2) DEFAULT NULL,
+  `soil_moisture` SMALLINT UNSIGNED DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -67,7 +68,7 @@ ALTER TABLE `watering`
 -- AUTO_INCREMENT for table `sensors`
 --
 ALTER TABLE `sensors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `watering`
 --
