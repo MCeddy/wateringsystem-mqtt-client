@@ -18,7 +18,8 @@ class DataService:
                                           passwd=self.__config['password'])
             self.__log.info('MySQL connected')
         except _mysql_exceptions.OperationalError:
-            self.__log.error('couldn\'t connect to MySQL database', exc_info=True)
+            self.__log.error(
+                'couldn\'t connect to MySQL database', exc_info=True)
 
     def __execute(self, sql):
         try:
@@ -32,10 +33,10 @@ class DataService:
             result = cursor.execute(sql)
             return result, cursor
 
-    def save_sensor_values(self, temperature, humidity, soil_moisture):
+    def save_sensor_values(self, temperature, humidity, pressure, soil_moisture):
         try:
-            sql_command = 'INSERT INTO sensors (temperature, humidity, soil_moisture) VALUES ({}, {}, {})' \
-                .format(temperature, humidity, soil_moisture)
+            sql_command = 'INSERT INTO sensors (temperature, humidity, pressure, soil_moisture) VALUES ({}, {}, {}, {})' \
+                .format(temperature, humidity, pressure, soil_moisture)
             result, cursor = self.__execute(sql_command)
             self.__conn.commit()
 

@@ -56,16 +56,19 @@ def handle_receive_sensor_values(payload):
         # transform payload to JSON
         sensor_values = json.loads(payload.decode('utf-8'))
 
-        temperature = int(sensor_values['Temperature'])
-        humidity = int(sensor_values['Humidity'])
+        temperature = float(sensor_values['Temperature'])
+        humidity = float(sensor_values['Humidity'])
+        pressure = float(sensor_values['Pressure'])
         soil_moisture = int(sensor_values['SoilMoisture'])
 
-        sensors_id = data_service.save_sensor_values(temperature, humidity, soil_moisture)
+        sensors_id = data_service.save_sensor_values(
+            temperature, humidity, pressure, soil_moisture)
 
         if sensors_id is None:
             return
 
-        watering_milliseconds = watering_service.calculate_milliseconds(soil_moisture)
+        watering_milliseconds = watering_service.calculate_milliseconds(
+            soil_moisture)
 
         if watering_milliseconds > 200:
             watering(watering_milliseconds)
