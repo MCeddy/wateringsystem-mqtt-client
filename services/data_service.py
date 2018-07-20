@@ -26,10 +26,10 @@ class DataService:
             cursor = self.__conn.cursor()
             result = cursor.execute(sql)
             return result, cursor
-        except (AttributeError, MySQLdb.OperationalError):
+        except (AttributeError, _mysql_exceptions.OperationalError):
             self.__connect()  # reconnect
 
-            cursor = self.__conn.cursor
+            cursor = self.__conn.cursor()
             result = cursor.execute(sql)
             return result, cursor
 
