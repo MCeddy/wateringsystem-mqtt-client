@@ -8,7 +8,6 @@ import paho.mqtt.client as mqtt
 import yaml
 
 from services.data_service import DataService
-from services.watering_service import WateringService
 from services.config_service import ConfigService
 
 
@@ -66,12 +65,6 @@ def handle_receive_sensor_values(payload):
 
         if sensors_id is None:
             return
-
-        watering_milliseconds = watering_service.calculate_milliseconds(
-            soil_moisture)
-
-        if watering_milliseconds > 200:
-            watering(watering_milliseconds)
     except AttributeError:
         logger.error('read sensors JSON error', exc_info=True)
     except ValueError:
@@ -124,7 +117,6 @@ try:
     watering_config = config_service.get_section('watering')
 
     data_service = DataService(mysql_config)
-    watering_service = WateringService(watering_config)
 
     mqtt_client = create_mqtt_client(mqtt_config)
     mqtt_client.loop_forever()
